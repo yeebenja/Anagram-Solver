@@ -8,50 +8,44 @@
 #include <getopt.h>
 #include <map>
 #include <queue>
+#include <cassert>
 
 
 using namespace std;
 
 //// Option enumerated classes
-//enum class Cardinal_Output_Mode { kNone = 0, k_Cardinal_Mode_On, };					 // -c
-//enum class Index_Output_Mode { kNone = 0, k_Index_Mode_On, };						 // -i
-//enum class Point_Output_Mode { kNone = 0, k_Point_Mode_On, };						 // -p
-//enum class Alpha_Output_Mode { kNone = 0, k_Alpha_Mode_On, };					     // -a
-//enum class Search_Depth_Output_Mode { kNone = 0, k_Search_Depth_Mode_On, };			 // -s
-//enum class Board_Mode { kNone = 0, k_Board_Mode_On, };								 // -b
-//enum class Linear_Search_Only_Mode { kNone = 0, k_Linear_Search_Mode_On, };			 // -l
-//enum class Word_Hunt_Mode { kNone = 0, k_Word_Hunt_Mode_On, };						 // -w
-//enum class Specify_Length_Mode { kNone = 0, k_Specify_Length_Mode_on, };			 // -x
-//enum class Specify_First_Letter_Mode { kNone = 0, k_Specify_First_Letter_Mode_On, }; // -y
-//
-//
-//// Options struct
-//struct Options {
-//	Cardinal_Output_Mode cardinal_output_mode = Cardinal_Output_Mode::kNone;
-//	Index_Output_Mode index_output_mode = Index_Output_Mode::kNone;
-//	Point_Output_Mode point_output_mode = Point_Output_Mode::kNone;
-//	Alpha_Output_Mode alpha_output_mode = Alpha_Output_Mode::kNone;
-//	Search_Depth_Output_Mode search_depth_output_mode = Search_Depth_Output_Mode::kNone;
-//	Board_Mode board_mode = Board_Mode::kNone;
-//	Linear_Search_Only_Mode linear_mode = Linear_Search_Only_Mode::kNone;
-//	Word_Hunt_Mode word_hunt_mode = Word_Hunt_Mode::kNone;
-//	Specify_Length_Mode specify_length_mode = Specify_Length_Mode::kNone;
-//	Specify_First_Letter_Mode specify_first_letter_mode = Specify_First_Letter_Mode::kNone;
-//
-//	int search_depth = 6;					// Default Search Depth value is 6
-//	string board_filename = "board.txt";	// Default Board filename is "board.txt"
-//	int specified_length = 0;
-//	vector<char> specified_first_letters;
-//};
+enum class Specify_Letters_Mode {kNone = 0, k_Mode_On};	// -s
+
+// Options struct
+struct Options {
+	Specify_Letters_Mode SLM = Specify_Letters_Mode::kNone;
+	vector<char> char_vect;
+};
 
 
 class Anagram_Solver {
 private:
-
+	vector<char> char_vect;
 
 
 
 public:
+	// Custom Constructor
+	Anagram_Solver(Options& options) {
+		if (options.SLM == Specify_Letters_Mode::kNone) {
+			// Default letters will be abcdef if not specified in command line
+			char_vect.push_back('A');
+			char_vect.push_back('B');
+			char_vect.push_back('C');
+			char_vect.push_back('D');
+			char_vect.push_back('E');
+			char_vect.push_back('F');
+		}
+		else {
+			char_vect = options.char_vect;
+		}
+	}
+
 	// EFFECTS: Runs Anagram Solver object
 	void run(void) {
 
@@ -59,3 +53,54 @@ public:
 };
 
 
+
+// EFFECTS: Given character, returns capitalized 
+// version of the character
+char capital(const char& c) {
+	if (c >= 65 && c <= 90) return c;
+	else if (c >= 97 && c <= 122) return c - 32;
+	else {
+		cout << "Invalid character\n";
+		assert(false);
+	}
+	return 0;
+}
+
+void getMode(int argc, char* argv[], Options& options) {
+	// These are used with getopt_long()
+	opterr = false; // Let us handle all error output for command line options
+	int choice;
+	int index = 0;
+	option long_options[] = {
+		{ "specify-letters", required_argument, nullptr, 's'},
+
+	};  // long_options[]
+
+	while ((choice = getopt_long(argc, argv, "s:", long_options, &index)) != -1) {
+		switch (choice) {
+		case 's': {
+			options.SLM = Specify_Letters_Mode::k_Mode_On;
+			string arg{ optarg };
+			for (size_t i = 0; i < arg.length(); ++i) {
+				options.char_vect.push_back(capital(arg[i]));
+			}
+			sort(options.char_vect.begin(), options.char_vect.end());
+			break;
+		}
+		default: {
+			cerr << "error: invalid option" << endl;
+			exit(1);
+		}
+		}
+	}
+}
+
+// Main function
+int main(int argc, char** argv) {
+	Options options;
+	getMode(argc, argv, options);
+	Anagram_Solver solver_1(options);
+	solver_1.run();
+
+	return 0;
+}
