@@ -9,6 +9,7 @@
 #include <map>
 #include <queue>
 #include <cassert>
+#include <string>
 
 
 using namespace std;
@@ -20,15 +21,49 @@ enum class Specify_Letters_Mode {kNone = 0, k_Mode_On};	// -s
 struct Options {
 	Specify_Letters_Mode SLM = Specify_Letters_Mode::kNone;
 	vector<char> char_vect;
+	
 };
 
 
 class Anagram_Solver {
 private:
+	// Private Variables
 	vector<char> char_vect;
+	vector<string> list_of_words;
+	//map<char, int> input;
+
+	// Use set/subset instead of map
+	
+	
+	struct Solution {
+		string word;
+		int points;
+	};
+	class Solution_Compare {
+	public:
+		// EFFECTS: Returns true if priority(a) < priority(b)
+		bool operator()(const Solution& a, const Solution& b) {
+			if (a.points < b.points) {
+				return true;
+			}
+			else if (a.points > b.points) {
+				return false;
+			}
+			else {
+				return a.word[0] < b.word[0];
+			}
+		}
+	};
+	priority_queue<Solution, vector<Solution>, Solution_Compare> Solution_pq;
 
 
 
+
+
+
+	// Private Functions
+	
+	
 public:
 	// Custom Constructor
 	Anagram_Solver(Options& options) {
@@ -101,6 +136,15 @@ int main(int argc, char** argv) {
 	getMode(argc, argv, options);
 	Anagram_Solver solver_1(options);
 	solver_1.run();
+
+
+	map<char, int> map1;
+	map<char, int> map2;
+
+	//++map1['B'];
+	//++map2['B'];
+	//cout << (map1 == map2) << endl;
+
 
 	return 0;
 }
