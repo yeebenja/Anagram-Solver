@@ -54,6 +54,7 @@ private:
 			}
 		}
 	};
+
 	priority_queue<Solution, vector<Solution>, Solution_Compare> Solution_pq;
 
 	// --- Private Functions ---
@@ -182,8 +183,6 @@ void getMode(int argc, char* argv[], Options& options) {
 			for (size_t i = 0; i < arg.length(); ++i) {
 				options.char_vect.push_back(capital(arg[i]));
 			}
-			//sort(options.char_vect.begin(), options.char_vect.end());
-			// No need to sort!
 			break;
 		}
 		default: {
